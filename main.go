@@ -1,0 +1,124 @@
+// Copyright 2022, Matthew Winter
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package main
+
+import (
+	"flag"
+	"fmt"
+	"os"
+	"path/filepath"
+	"time"
+
+	"github.com/rs/zerolog"
+)
+
+var logger zerolog.Logger
+var applicationText = "%s 0.1.0%s"
+var copyrightText = "Copyright 2022, Matthew Winter\n"
+var indent = "..."
+
+var helpText = `
+A command line application designed to provide a simple method to execute one
+or more SQL queries against a given dataset in BigQuery.  A detailed log is
+output to the console providing you with the available execution statistics.
+
+Use --help for more details.
+
+
+USAGE:
+    bqrunner -p PROJECT_ID -d DATASET -i INPUT_PATH -o OUTPUT_PATH
+
+ARGS:
+`
+
+func main() {
+	flag.Usage = func() {
+		fmt.Fprintf(os.Stderr, applicationText, filepath.Base(os.Args[0]), "\n")
+		fmt.Fprint(os.Stderr, copyrightText)
+		fmt.Fprint(os.Stderr, helpText)
+		flag.PrintDefaults()
+	}
+
+	// Define the Long CLI flag names
+	var targetProject = flag.String("p", "", "Google Cloud Project ID  (Required)")
+	var targetDataset = flag.String("d", "", "BigQuery Dataset  (Required)")
+	var inputPath = flag.String("i", "", "Input SQL Path  (Required)")
+	var outputPath = flag.String("o", "", "Output Results Path  (Required)")
+	var processingLocation = flag.String("l", "", "BigQuery Data Processing Location")
+	var useQueryCache = flag.Bool("c", false, "Use Query Cache")
+	var shuffleQueries = flag.Bool("s", false, "Shuffle Queries")
+	var dryRun = flag.Bool("dr", false, "Dry Run")
+	var verbose = flag.Bool("v", false, "Output Verbose Detail")
+
+	// Parse the flags
+	flag.Parse()
+
+	// Validate the Required Flags
+	if *targetProject == "" || *targetDataset == "" || *inputPath == "" || *outputPath == "" {
+		flag.Usage()
+		os.Exit(1)
+	}
+
+	// Setup Zero Log for Consolo Output
+	output := zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: time.RFC3339}
+	logger = zerolog.New(output).With().Timestamp().Logger()
+	zerolog.TimeFieldFormat = "2006-01-02 15:04:05.000"
+	zerolog.DurationFieldUnit = time.Millisecond
+	zerolog.DurationFieldInteger = true
+	if *verbose {
+		zerolog.SetGlobalLevel(zerolog.DebugLevel)
+	} else {
+		zerolog.SetGlobalLevel(zerolog.InfoLevel)
+	}
+
+	// Output Header
+	logger.Info().Msgf(applicationText, filepath.Base(os.Args[0]), "")
+	logger.Info().Msg("Arguments")
+	logger.Info().Str("Project ID", *targetProject).Msg(indent)
+	logger.Info().Str("Dataset", *targetDataset).Msg(indent)
+	logger.Info().Str("Input SQL Path", *inputPath).Msg(indent)
+	logger.Info().Str("Output Results Path", *outputPath).Msg(indent)
+	logger.Info().Str("Processing Location", *processingLocation).Msg(indent)
+	logger.Info().Bool("Use Query Cache", *useQueryCache).Msg(indent)
+	logger.Info().Bool("Shuffle Queries", *shuffleQueries).Msg(indent)
+	logger.Info().Bool("Dry Run", *dryRun).Msg(indent)
+	logger.Info().Msg("Begin")
+
+	// Load the SQL Queries into memory ready for execution
+	var queries Queries
+	err := queries.LoadQueries(*inputPath, *outputPath)
+	if err != nil {
+		logger.Error().Err(err).Msg("Failed Loading Queries")
+		os.Exit(1)
+	}
+
+	// Check that we did find queries to load
+	if len(queries.Query) == 0 {
+		logger.Error().Msg("Check Input SQL Path, No Files Found")
+		os.Exit(1)
+	}
+	logger.Info().Int("Query Count", len(queries.Query)).Msg("Loading Queries Complete")
+
+	// Shuffle the Query Execution Order if requested
+	queries.ShuffleExecutionOrder(*shuffleQueries)
+
+	// Execute the Queries following the Execution Order
+	err = queries.ExecuteQueries(*targetProject, *targetDataset, *processingLocation, *useQueryCache, *dryRun)
+	if err != nil {
+		logger.Error().Err(err).Msg("Failed Executing Queries")
+		os.Exit(1)
+	}
+	logger.Info().Msg("End")
+}
