@@ -5,7 +5,7 @@ go 1.17
 require (
 	cloud.google.com/go/bigquery v1.32.0
 	github.com/rs/zerolog v1.26.1
-	google.golang.org/api v0.78.0
+	google.golang.org/api v0.79.0
 )
 
 require (
