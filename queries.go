@@ -19,7 +19,6 @@ import (
 	"context"
 	"encoding/csv"
 	"fmt"
-	"io/ioutil"
 	"math/rand"
 	"os"
 	"path/filepath"
@@ -80,7 +79,7 @@ func (queries *Queries) LoadQueries(inputPath string, outputPath string) error {
 		inputFile, _ := filepath.Abs(filename)
 		outputFile, _ := filepath.Abs(filepath.Join(outputPath, fmt.Sprintf("results-query-%06d.output", queryCount)))
 
-		buf, err := ioutil.ReadFile(inputFile)
+		buf, err := os.ReadFile(inputFile)
 		if err != nil {
 			return fmt.Errorf("[LoadQueries] Read Input File Failed: %w", err)
 		}
