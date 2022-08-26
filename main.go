@@ -56,8 +56,9 @@ func main() {
 	var targetDataset = flag.String("d", "", "BigQuery Dataset  (Required)")
 	var inputPath = flag.String("i", "", "Input SQL Path  (Required)")
 	var outputPath = flag.String("o", "", "Output Results Path  (Required)")
+	var fieldDelimiter = flag.String("f", ",", "Field Delimter")
 	var processingLocation = flag.String("l", "", "BigQuery Data Processing Location")
-	var useQueryCache = flag.Bool("c", false, "Use Query Cache")
+	var disableQueryCache = flag.Bool("c", false, "Disable Query Cache")
 	var shuffleQueries = flag.Bool("s", false, "Shuffle Queries")
 	var dryRun = flag.Bool("dr", false, "Dry Run")
 	var verbose = flag.Bool("v", false, "Output Verbose Detail")
@@ -67,6 +68,12 @@ func main() {
 
 	// Validate the Required Flags
 	if *targetProject == "" || *targetDataset == "" || *inputPath == "" || *outputPath == "" {
+		flag.Usage()
+		os.Exit(1)
+	}
+
+	// Validate that the Field Delimiter is 1 character
+	if len(*fieldDelimiter) != 1 {
 		flag.Usage()
 		os.Exit(1)
 	}
@@ -90,8 +97,9 @@ func main() {
 	logger.Info().Str("Dataset", *targetDataset).Msg(indent)
 	logger.Info().Str("Input SQL Path", *inputPath).Msg(indent)
 	logger.Info().Str("Output Results Path", *outputPath).Msg(indent)
+	logger.Info().Str("Field Delimiter", *fieldDelimiter).Msg(indent)
 	logger.Info().Str("Processing Location", *processingLocation).Msg(indent)
-	logger.Info().Bool("Use Query Cache", *useQueryCache).Msg(indent)
+	logger.Info().Bool("Disable Query Cache", *disableQueryCache).Msg(indent)
 	logger.Info().Bool("Shuffle Queries", *shuffleQueries).Msg(indent)
 	logger.Info().Bool("Dry Run", *dryRun).Msg(indent)
 	logger.Info().Msg("Begin")
@@ -115,7 +123,7 @@ func main() {
 	queries.ShuffleExecutionOrder(*shuffleQueries)
 
 	// Execute the Queries following the Execution Order
-	err = queries.ExecuteQueries(*targetProject, *targetDataset, *processingLocation, *useQueryCache, *dryRun)
+	err = queries.ExecuteQueries(*targetProject, *targetDataset, *processingLocation, *disableQueryCache, *dryRun, *fieldDelimiter)
 	if err != nil {
 		logger.Error().Err(err).Msg("Failed Executing Queries")
 		os.Exit(1)

@@ -15,6 +15,7 @@
 package main
 
 import (
+	"bufio"
 	"context"
 	"encoding/csv"
 	"fmt"
@@ -121,7 +122,7 @@ func (queries *Queries) ShuffleExecutionOrder(shuffle bool) {
 //---------------------------------------------------------------------------------------
 
 // Execute the Queries in BigQuery
-func (queries *Queries) ExecuteQueries(project string, dataset string, location string, cache bool, dryRun bool) error {
+func (queries *Queries) ExecuteQueries(project string, dataset string, location string, disableQueryCache bool, dryRun bool, delimiter string) error {
 
 	// Establish a BigQuery Client Connection
 	logger.Info().Msg("Establishing BigQuery Client Connection")
@@ -141,10 +142,10 @@ func (queries *Queries) ExecuteQueries(project string, dataset string, location 
 		qd := queries.Query[index]
 
 		if dryRun {
-			qd.ExecuteDryRun(ctx, client, project, dataset, cache)
+			qd.ExecuteDryRun(ctx, client, project, dataset, location, disableQueryCache)
 			qd.LogExecuteDryRun()
 		} else {
-			qd.ExecuteQuery(ctx, client, project, dataset, cache)
+			qd.ExecuteQuery(ctx, client, project, dataset, location, disableQueryCache, delimiter)
 			qd.LogExecuteQuery()
 		}
 
@@ -165,7 +166,7 @@ func (queries *Queries) ExecuteQueries(project string, dataset string, location 
 //---------------------------------------------------------------------------------------
 
 // Execute Query
-func (qd *QueryDetails) ExecuteQuery(ctx context.Context, client *bigquery.Client, project string, dataset string, cache bool) {
+func (qd *QueryDetails) ExecuteQuery(ctx context.Context, client *bigquery.Client, project string, dataset string, location string, disableQueryCache bool, delimiter string) {
 	// Make Sure the Output File Path Exists
 	path := filepath.Dir(qd.OutputFile)
 	if _, err := os.Stat(path); os.IsNotExist(err) {
@@ -179,7 +180,8 @@ func (qd *QueryDetails) ExecuteQuery(ctx context.Context, client *bigquery.Clien
 	q := client.Query(qd.SQL)
 	q.DefaultProjectID = project
 	q.DefaultDatasetID = dataset
-	q.DisableQueryCache = !cache
+	q.Location = location
+	q.DisableQueryCache = disableQueryCache
 	q.DryRun = false
 
 	// Initiate the Query Job
@@ -199,14 +201,15 @@ func (qd *QueryDetails) ExecuteQuery(ctx context.Context, client *bigquery.Clien
 	}
 	defer f.Close()
 
-	// Ready the CSV Writer
-	w := csv.NewWriter(f)
+	// Ready the CSV Writer and use a buffered io writer
+	w := csv.NewWriter(bufio.NewWriter(f))
+	w.Comma = rune(delimiter[0])
 	defer w.Flush()
 
-	var row []bigquery.Value
+	var rl RowLoader
 	var rowCount int64
 	for {
-		err := it.Next(&row)
+		err := it.Next(&rl)
 		if rowCount == 0 {
 			qd.FirstRowReturnedTime = time.Now()
 		}
@@ -219,7 +222,7 @@ func (qd *QueryDetails) ExecuteQuery(ctx context.Context, client *bigquery.Clien
 			qd.Error = err
 			return
 		}
-		if err := w.Write(*bqToString(&row)); err != nil {
+		if err := w.Write(rl.Row); err != nil {
 			qd.Error = fmt.Errorf("Failed Writing to the Output File")
 			return
 		}
@@ -230,12 +233,13 @@ func (qd *QueryDetails) ExecuteQuery(ctx context.Context, client *bigquery.Clien
 //---------------------------------------------------------------------------------------
 
 // Execute Dry Run Query
-func (qd *QueryDetails) ExecuteDryRun(ctx context.Context, client *bigquery.Client, project string, dataset string, cache bool) {
+func (qd *QueryDetails) ExecuteDryRun(ctx context.Context, client *bigquery.Client, project string, dataset string, location string, disableQueryCache bool) {
 	// Create and Configure Query
 	q := client.Query(qd.SQL)
 	q.DefaultProjectID = project
 	q.DefaultDatasetID = dataset
-	q.DisableQueryCache = !cache
+	q.Location = location
+	q.DisableQueryCache = disableQueryCache
 	q.DryRun = true
 
 	// Initiate the Query Job
@@ -294,16 +298,4 @@ func (qd *QueryDetails) LogExecuteDryRun() {
 	logger.Info().Time("Query Execution Start", qd.QueryStartTime).Msg(indent)
 	logger.Info().Time("Query Execution End", qd.QueryEndTime).Msg(indent)
 	logger.Info().TimeDiff("Execution Time (ms)", qd.QueryEndTime, qd.QueryStartTime).Msg(indent)
-}
-
-//---------------------------------------------------------------------------------------
-
-// Convert BigQuery.Value Array to a String Array
-func bqToString(row *[]bigquery.Value) *[]string {
-	record := make([]string, len(*row))
-
-	for i, val := range *row {
-		record[i] = fmt.Sprint(val)
-	}
-	return &record
 }

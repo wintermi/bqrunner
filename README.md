@@ -10,11 +10,13 @@ USAGE:
     bqrunner -p PROJECT_ID -d DATASET -i INPUT_PATH -o OUTPUT_PATH
 
 ARGS:
-  -c	Use Query Cache
+  -c	Disable Query Cache
   -d string
     	BigQuery Dataset  (Required)
   -dr
     	Dry Run
+  -f string
+    	Field Delimter (default ",")
   -i string
     	Input SQL Path  (Required)
   -l string
