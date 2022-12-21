@@ -1,5 +1,5 @@
 # BigQuery Query Runner
-[![Go Workflow Status](https://github.com/winterlabs-dev/bqrunner/workflows/Go/badge.svg)](https://github.com/winterlabs-dev/bqrunner/actions/workflows/go.yml)&nbsp;[![Go Report Card](https://goreportcard.com/badge/github.com/winterlabs-dev/bqrunner)](https://goreportcard.com/report/github.com/winterlabs-dev/bqrunner)&nbsp;[![license](https://img.shields.io/github/license/winterlabs-dev/bqrunner.svg)](https://github.com/winterlabs-dev/bqrunner/blob/main/LICENSE)&nbsp;[![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/winterlabs-dev/bqrunner?include_prereleases)](https://github.com/winterlabs-dev/bqrunner/releases)
+[![Go Workflow Status](https://github.com/wintermi/bqrunner/workflows/Go/badge.svg)](https://github.com/wintermi/bqrunner/actions/workflows/go.yml)&nbsp;[![Go Report Card](https://goreportcard.com/badge/github.com/wintermi/bqrunner)](https://goreportcard.com/report/github.com/wintermi/bqrunner)&nbsp;[![license](https://img.shields.io/github/license/wintermi/bqrunner.svg)](https://github.com/wintermi/bqrunner/blob/main/LICENSE)&nbsp;[![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/wintermi/bqrunner?include_prereleases)](https://github.com/wintermi/bqrunner/releases)
 
 
 ## Description
