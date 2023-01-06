@@ -1,5 +1,8 @@
 # BigQuery Query Runner
-[![Go Workflow Status](https://github.com/wintermi/bqrunner/workflows/Go/badge.svg)](https://github.com/wintermi/bqrunner/actions/workflows/go.yml)&nbsp;[![Go Report Card](https://goreportcard.com/badge/github.com/wintermi/bqrunner)](https://goreportcard.com/report/github.com/wintermi/bqrunner)&nbsp;[![license](https://img.shields.io/github/license/wintermi/bqrunner.svg)](https://github.com/wintermi/bqrunner/blob/main/LICENSE)&nbsp;[![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/wintermi/bqrunner?include_prereleases)](https://github.com/wintermi/bqrunner/releases)
+[![Go Workflow Status](https://github.com/wintermi/bqrunner/workflows/Go/badge.svg)](https://github.com/wintermi/bqrunner/actions/workflows/go.yml)
+[![Go Report Card](https://goreportcard.com/badge/github.com/wintermi/bqrunner)](https://goreportcard.com/report/github.com/wintermi/bqrunner)
+[![license](https://img.shields.io/github/license/wintermi/bqrunner.svg)](https://github.com/wintermi/bqrunner/blob/main/LICENSE)
+[![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/wintermi/bqrunner?include_prereleases)](https://github.com/wintermi/bqrunner/releases)
 
 
 ## Description
@@ -28,3 +31,7 @@ ARGS:
   -s	Shuffle Queries
   -v	Output Verbose Detail
 ```
+
+
+## License
+**bqrunner** is released under the [Apache License 2.0](https://github.com/wintermi/bqrunner/blob/main/LICENSE) unless explicitly mentioned in the file header.
