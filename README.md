@@ -1,11 +1,13 @@
 # BigQuery Query Runner
-[![Go Workflow Status](https://github.com/wintermi/bqrunner/workflows/Go/badge.svg)](https://github.com/wintermi/bqrunner/actions/workflows/go.yml)
-[![Go Report Card](https://goreportcard.com/badge/github.com/wintermi/bqrunner)](https://goreportcard.com/report/github.com/wintermi/bqrunner)
-[![license](https://img.shields.io/github/license/wintermi/bqrunner.svg)](https://github.com/wintermi/bqrunner/blob/main/LICENSE)
-[![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/wintermi/bqrunner?include_prereleases)](https://github.com/wintermi/bqrunner/releases)
+
+[![Workflows](https://github.com/wintermi/bqrunner/workflows/Go/badge.svg)](https://github.com/wintermi/bqrunner/actions/workflows/go.yml)
+[![Go Report](https://goreportcard.com/badge/github.com/wintermi/bqrunner)](https://goreportcard.com/report/github.com/wintermi/bqrunner)
+[![License](https://img.shields.io/github/license/wintermi/bqrunner.svg)](https://github.com/wintermi/bqrunner/blob/main/LICENSE)
+[![Release](https://img.shields.io/github/v/release/wintermi/bqrunner?include_prereleases)](https://github.com/wintermi/bqrunner/releases)
 
 
 ## Description
+
 A command line application designed to provide a simple method to execute one or more SQL queries against a given dataset in BigQuery.  A detailed log is output to the console providing you with the available execution statistics.
 
 ```
@@ -34,4 +36,5 @@ ARGS:
 
 
 ## License
+
 **bqrunner** is released under the [Apache License 2.0](https://github.com/wintermi/bqrunner/blob/main/LICENSE) unless explicitly mentioned in the file header.
