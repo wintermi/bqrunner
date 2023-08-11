@@ -109,8 +109,8 @@ func (queries *Queries) LoadQueries(inputPath string, outputPath string) error {
 // Shuffle the Query Execution Order
 func (queries *Queries) ShuffleExecutionOrder(shuffle bool) {
 	if shuffle {
-		rand.Seed(time.Now().UnixNano())
-		rand.Shuffle(len(queries.ExecutionOrder), func(i, j int) {
+		r := rand.New(rand.NewSource(time.Now().UnixNano()))
+		r.Shuffle(len(queries.ExecutionOrder), func(i, j int) {
 			queries.ExecutionOrder[i], queries.ExecutionOrder[j] = queries.ExecutionOrder[j], queries.ExecutionOrder[i]
 		})
 
