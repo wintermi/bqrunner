@@ -1,6 +1,6 @@
 # BigQuery Query Runner
 
-[![Workflows](https://github.com/wintermi/bqrunner/workflows/Go/badge.svg)](https://github.com/wintermi/bqrunner/actions/workflows/go.yml)
+[![Workflows](https://github.com/wintermi/bqrunner/workflows/Go/badge.svg)](https://github.com/wintermi/bqrunner/actions)
 [![Go Report](https://goreportcard.com/badge/github.com/wintermi/bqrunner)](https://goreportcard.com/report/github.com/wintermi/bqrunner)
 [![License](https://img.shields.io/github/license/wintermi/bqrunner.svg)](https://github.com/wintermi/bqrunner/blob/main/LICENSE)
 [![Release](https://img.shields.io/github/v/release/wintermi/bqrunner?include_prereleases)](https://github.com/wintermi/bqrunner/releases)
