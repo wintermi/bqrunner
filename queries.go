@@ -17,9 +17,9 @@ package main
 import (
 	"bufio"
 	"context"
+	"crypto/rand"
 	"encoding/csv"
 	"fmt"
-	"math/rand"
 	"os"
 	"path/filepath"
 	"time"
@@ -79,7 +79,7 @@ func (queries *Queries) LoadQueries(inputPath string, outputPath string) error {
 		inputFile, _ := filepath.Abs(filename)
 		outputFile, _ := filepath.Abs(filepath.Join(outputPath, fmt.Sprintf("results-query-%06d.output", queryCount)))
 
-		buf, err := os.ReadFile(inputFile)
+		buf, err := os.ReadFile(filepath.Clean(inputFile))
 		if err != nil {
 			return fmt.Errorf("[LoadQueries] Read Input File Failed: %w", err)
 		}
@@ -109,10 +109,14 @@ func (queries *Queries) LoadQueries(inputPath string, outputPath string) error {
 // Shuffle the Query Execution Order
 func (queries *Queries) ShuffleExecutionOrder(shuffle bool) {
 	if shuffle {
-		r := rand.New(rand.NewSource(time.Now().UnixNano()))
-		r.Shuffle(len(queries.ExecutionOrder), func(i, j int) {
-			queries.ExecutionOrder[i], queries.ExecutionOrder[j] = queries.ExecutionOrder[j], queries.ExecutionOrder[i]
-		})
+		// Fisher-Yates shuffle using crypto/rand
+		n := len(queries.ExecutionOrder)
+		for i := n - 1; i > 0; i-- {
+			j := make([]byte, 8)
+			_, _ = rand.Read(j)
+			jInt := int(j[0]) % (i + 1)
+			queries.ExecutionOrder[i], queries.ExecutionOrder[jInt] = queries.ExecutionOrder[jInt], queries.ExecutionOrder[i]
+		}
 
 		logger.Info().Msg("Query Execution Order Shuffle Complete")
 	}

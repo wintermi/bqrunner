@@ -30,3 +30,5 @@
 # Project Ignores
 bqrunner
 tests/output/**/
+bin/**
+build/**
